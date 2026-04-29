@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tournoi des Probabilités</title>
+  <style>
+    :root { --dark:#0f172a; --muted:#64748b; --card:#fff; --bg:#f1f5f9; --line:#e2e8f0; --green:#d1fae5; --greenText:#064e3b; --red:#ffe4e6; --redText:#881337; --blue:#2563eb; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:linear-gradient(#f1f5f9,#fff); color:#0f172a; }
+    .wrap { max-width:460px; margin:0 auto; padding:10px 12px 60px; }
+    header { background:var(--dark); color:white; border-radius:22px; padding:14px 16px; box-shadow:0 12px 22px rgba(15,23,42,.18); }
+    header .top { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .eyebrow { color:#cbd5e1; font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; margin:0 0 3px; }
+    h1 { font-size:23px; line-height:1.05; margin:0; }
+    h2 { font-size:21px; margin:0 0 12px; }
+    p { margin:0; }
+    .sub { margin-top:7px; color:#e2e8f0; font-size:12px; line-height:1.25; }
+    .tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin:10px 0; }
+    button { border:1px solid var(--line); background:white; color:#0f172a; padding:11px 13px; border-radius:18px; font-weight:800; cursor:pointer; font-size:14px; }
+    button.active, button.primary { background:#0f172a; color:white; border-color:#0f172a; }
+    button.secondary { background:#e2e8f0; border-color:#e2e8f0; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:28px; padding:18px; margin-bottom:14px; box-shadow:0 8px 18px rgba(15,23,42,.08); }
+    .sportCard { border-width:1px; padding:12px; background:#fff; border-color:var(--line); }
+    .football, .rugby, .jiujitsu { background:#fff; border-color:var(--line); }
+    .row { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .sportHead h2 { font-size:20px; margin:0 0 2px; }
+    .why, .box { background:white; border-radius:16px; padding:10px; font-size:13px; color:#334155; margin-top:9px; }
+    .why.compact { padding:7px 9px; font-size:12px; line-height:1.25; }
+    .resultBanner { margin-top:10px; border-radius:16px; padding:11px 12px; font-size:15px; line-height:1.25; font-weight:700; border:2px solid transparent; }
+    .resultBanner .resultTitle { display:block; font-size:18px; font-weight:900; margin-bottom:2px; }
+    .resultBanner.inEvent { background:#dcfce7; border-color:#86efac; color:#14532d; }
+    .resultBanner.outEvent { background:#ffe4e6; border-color:#fda4af; color:#881337; }
+    .box { background:#f8fafc; }
+    .methodBox { background:#0f172a; color:white; border-radius:18px; padding:14px; margin-top:12px; font-size:15px; line-height:1.35; }
+    .methodBox b { display:block; font-size:18px; margin-bottom:8px; }
+    .methodSteps { display:grid; gap:7px; }
+    .methodSteps span { display:block; background:rgba(255,255,255,.09); border-radius:12px; padding:8px 10px; }
+    .playGrid { display:grid; grid-template-columns:92px 1fr; gap:10px; align-items:center; margin-top:10px; }
+    .die { width:86px; height:86px; margin:0; display:flex; align-items:center; justify-content:center; border:4px solid #0f172a; background:white; border-radius:23px; font-size:43px; font-weight:900; box-shadow:0 10px 14px rgba(15,23,42,.14); }
+    .actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .rollBtn { width:100%; min-height:58px; background:#0f172a; border-color:#0f172a; color:white; font-size:17px; box-shadow:0 9px 14px rgba(15,23,42,.22); }
+    .rollBtn:active { transform:translateY(1px); }
+    .eventMini { background:#f8fafc; border:1px solid var(--line); border-left:5px solid #10b981; border-radius:14px; padding:7px 9px; font-size:12px; margin-top:7px; }
+    .sportTitle { display:flex; align-items:center; gap:9px; }
+    .sportEmoji { font-size:32px; line-height:1; }
+    .sportName { font-size:19px; font-weight:900; color:#0f172a; line-height:1.1; }
+    .sportSub { color:var(--muted); font-size:13px; margin-top:3px; }
+    .legend { display:flex; gap:6px; flex-wrap:wrap; font-size:11px; color:#475569; margin-top:7px; }
+    .legend span { display:inline-flex; align-items:center; gap:4px; }
+    .dot { width:10px; height:10px; border-radius:999px; display:inline-block; border:1px solid rgba(0,0,0,.15); }
+    .dot.green { background:var(--green); }
+    .dot.red { background:var(--red); }
+    .dot.blue { background:var(--blue); }
+    .eventBtn { width:100%; text-align:left; margin-bottom:8px; white-space:normal; border-left-width:6px; }
+    .eventBtn small { color:#64748b; font-weight:700; }
+    .eventBtn.active small { color:#cbd5e1; }
+    .eventA { border-left-color:#10b981; background:#f0fdf4; }
+    .eventB { border-left-color:#60a5fa; background:#eff6ff; }
+    .eventC { border-left-color:#fb7185; background:#fff1f2; }
+    .eventD { border-left-color:#f59e0b; background:#fffbeb; }
+    .eventBtn.active { color:#0f172a; box-shadow:inset 0 0 0 2px rgba(15,23,42,.18); }
+    .eventBtn.active small { color:#334155; }
+    .eventBtn.active.eventA { background:#dcfce7; border-color:#86efac; border-left-color:#10b981; }
+    .eventBtn.active.eventB { background:#dbeafe; border-color:#93c5fd; border-left-color:#60a5fa; }
+    .eventBtn.active.eventC { background:#ffe4e6; border-color:#fda4af; border-left-color:#fb7185; }
+    .eventBtn.active.eventD { background:#fef3c7; border-color:#fcd34d; border-left-color:#f59e0b; }
+    .eventSummary { background:#f8fafc; border-left:6px solid #10b981; border-radius:16px; padding:9px; font-size:13px; margin-bottom:8px; }
+    .eventSummary p { margin-top:2px; }
+    .eventChoices { margin-top:12px; }
+    .tiles { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; margin-top:10px; }
+    .tile { aspect-ratio:1/1; border:2px solid var(--line); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:900; position:relative; background:#f1f5f9; color:#334155; }
+    .tile.inA { background:var(--green); border-color:#10b981; color:var(--greenText); }
+    .tile.inC { background:var(--red); border-color:#fb7185; color:var(--redText); }
+    .tile.rolled { outline:4px solid var(--blue); outline-offset:2px; }
+    .mark { position:absolute; right:5px; bottom:3px; font-size:9px; }
+    .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; text-align:center; }
+    .stat { background:#f1f5f9; border-radius:18px; padding:10px; }
+    .stat b { font-size:25px; display:block; }
+    .dist { display:grid; grid-template-columns:repeat(6,1fr); gap:5px; text-align:center; font-size:12px; margin-top:10px; }
+    .dist div { background:white; border-radius:12px; padding:7px 3px; }
+    .quizChoice { width:100%; text-align:left; margin-top:8px; white-space:normal; }
+    .right { background:#0f172a; color:white; }
+    .wrong { background:#dc2626; color:white; }
+    .badge { display:inline-block; padding:5px 9px; background:#0f172a; color:white; border-radius:999px; font-size:12px; font-weight:800; margin-top:8px; }
+    .hide { display:none; }
+    .muted { color:var(--muted); font-size:13px; }
+    .tiny { font-size:12px; color:#64748b; margin-top:8px; }
+    .trophy { font-size:30px; line-height:1; }
+    @media (max-width: 380px) {
+      .wrap { padding:8px 10px 50px; }
+      header { padding:12px 14px; border-radius:20px; }
+      h1 { font-size:21px; }
+      .sub { font-size:11px; }
+      .trophy { font-size:26px; }
+      button { padding:9px 10px; border-radius:16px; font-size:13px; }
+      .card { padding:14px; border-radius:22px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="top">
+        <div>
+          <p class="eyebrow">Troisième · Probabilités</p>
+          <h1>Tournoi des Probabilités</h1>
+        </div>
+        <div class="trophy">🏆</div>
+      </div>
+      <p class="sub">Joue, colorie l’univers, change l’événement, puis vérifie la fréquence.</p>
+    </header>
+
+    <div class="tabs">
+      <button id="tabPlay" class="active" onclick="setTab('play')">Jouer</button>
+      <button id="tabVisual" onclick="setTab('visual')">Visualiser</button>
+      <button id="tabQuiz" onclick="setTab('quiz')">Quiz</button>
+    </div>
+
+    <section id="play"></section>
+    <section id="visual" class="hide"></section>
+    <section id="quiz" class="hide"></section>
+
+    <section class="card">
+      <button style="width:100%;display:flex;justify-content:space-between" onclick="toggle('course')">📘 Fiche courte <span>+</span></button>
+      <div id="course" class="hide box">
+        <p><b>Expérience aléatoire</b> : résultat incertain.</p>
+        <p><b>Issue</b> : un résultat possible.</p>
+        <p><b>Univers Ω</b> : toutes les issues possibles.</p>
+        <p><b>Événement</b> : partie de l’univers.</p>
+        <p><b>Contraire</b> : tout ce qui n’est pas dans l’événement.</p>
+        <p><b>Probabilité</b> : issues favorables / issues possibles.</p>
+      </div>
+    </section>
+  </main>
+
+<script>
+const U = [1,2,3,4,5,6];
+const SPORTS = [
+  {id:'football', icon:'⚽', title:'Football · penalty', cls:'football', why:'Réussite large : plusieurs issues comptent comme marquer.', button:'Tirer le penalty', outcomes:['tir à côté','arrêt du gardien','but chanceux','but','super but','lucarne'], events:[{id:'score',symbol:'A',name:'le penalty est marqué',type:'réussite',set:[3,4,5,6]},{id:'perfect',symbol:'B',name:'le tir est parfait',type:'élémentaire',set:[6]},{id:'miss',symbol:'C',name:'le penalty est raté',type:'contraire de A',set:[1,2]}]},
+  {id:'rugby', icon:'🏉', title:'Rugby · transformation', cls:'rugby', why:'Réussite stricte : être proche ne suffit pas.', button:'Tenter la transformation', outcomes:['très loin','poteau','juste à côté','réussi','réussi net','parfait'], events:[{id:'success',symbol:'A',name:'la transformation est réussie',type:'réussite stricte',set:[4,5,6]},{id:'post',symbol:'B',name:'le ballon touche le poteau',type:'élémentaire',set:[2]},{id:'fail',symbol:'C',name:'la transformation n’est pas réussie',type:'contraire de A',set:[1,2,3]}]},
+  {id:'jiujitsu', icon:'🥋', title:'Jiu-jitsu · attaque', cls:'jiujitsu', why:'Ici, la définition de l’événement change tout : position, avantage et soumission ne sont pas la même chose.', button:'Lancer l’action', outcomes:['évasion','bloqué','scramble','bonne position','sweep','soumission'], events:[{id:'adv',symbol:'A',name:'obtenir un vrai avantage',type:'réussite stricte',set:[5,6]},{id:'sub',symbol:'B',name:'soumission réussie',type:'élémentaire',set:[6]},{id:'position',symbol:'C',name:'au moins une bonne position',type:'plus large',set:[4,5,6]},{id:'notFail',symbol:'D',name:'ne pas échouer complètement',type:'très large',set:[3,4,5,6]}]}
+];
+const VISUAL = [
+  {name:'Élémentaire : obtenir 6', set:[6], note:'Un événement élémentaire contient une seule issue.'},
+  {name:'Certain : obtenir 1 à 6', set:[1,2,3,4,5,6], note:'L’événement certain contient tout l’univers. P = 1.'},
+  {name:'Impossible : obtenir 7', set:[], note:'L’événement impossible ne contient aucune issue. P = 0.'},
+  {name:'Pair : obtenir 2, 4 ou 6', set:[2,4,6], note:'Trois issues favorables sur six.'},
+  {name:'Premier : obtenir 2, 3 ou 5', set:[2,3,5], note:'Les nombres premiers entre 1 et 6 sont 2, 3 et 5.'}
+];
+const QUIZ = [
+  ['Que représente Ω ?', ['Une issue','Toutes les issues possibles','Seulement les réussites'], 1, 'Ω est l’univers.'],
+  ['Quel événement est élémentaire ?', ['{6}','{2,4,6}','Ω'], 0, 'Un événement élémentaire contient une seule issue.'],
+  ['Le contraire de {5,6} est…', ['{1,2,3,4}','{6}','Ω'], 0, 'On prend tout ce qui n’est pas dans l’événement.'],
+  ['Obtenir 7 avec un dé à six faces est…', ['certain','impossible','élémentaire'], 1, '7 n’est pas dans l’univers.'],
+  ['Pourquoi {5,6} et {3,4,5,6} n’ont pas la même probabilité ?', ['Le dé change','L’événement change','6 compte double'], 1, 'La probabilité dépend de l’événement défini.'],
+  ['Si A={2,4,6} et B={5,6}, A∩B vaut…', ['{6}','{2,4,5,6}','∅'], 0, 'L’intersection garde les issues communes.']
+];
+let tab='play', sportI=0, eventI=0, visualI=0, die=null, history=[], quizI=0, answer=null, score=[0,0];
+function setText(a){ return a.length ? `{${a.join(', ')}}` : '∅'; }
+function comp(a){ return U.filter(x => !a.includes(x)); }
+function gcd(a,b){ return b ? gcd(b, a % b) : Math.abs(a); }
+function frac(n,d=6){ if(n===0) return '0/6 = 0'; if(n===d) return '6/6 = 1'; const g=gcd(n,d); return `${n}/${d} = ${n/g}/${d/g}`; }
+function pct(n,d,digits=0){ return d ? `${((n/d)*100).toFixed(digits)} %` : (digits ? '0.0 %' : '0 %'); }
+function zLabel(z){ const a=Math.abs(z); return a<1?'très normal':a<2?'normal':a<3?'rare, à surveiller':'très rare'; }
+function tiles(set, rolled=null, showComp=true){
+  const c=comp(set);
+  return `<div class="tiles">${U.map(x=>{
+    const inA=set.includes(x), inC=c.includes(x);
+    const cls=inA?'inA':(showComp&&inC?'inC':'');
+    return `<div class="tile ${cls} ${rolled===x?'rolled':''}">${x}<span class="mark">${inA?'A':showComp?'Ā':''}</span></div>`;
+  }).join('')}</div>`;
+}
+function setTab(t){ tab=t; render(); }
+function toggle(id){ document.getElementById(id).classList.toggle('hide'); }
+function roll(){ const s=SPORTS[sportI], e=s.events[eventI]; die=Math.floor(Math.random()*6)+1; history.push({sport:s.id,event:e.id,roll:die,success:e.set.includes(die)}); render(); }
+function reset(){ die=null; history=[]; render(); }
+function changeSport(){ sportI=(sportI+1)%SPORTS.length; eventI=0; die=null; render(); }
+function chooseEvent(i){ eventI=i; render(); }
+function chooseVisual(i){ visualI=i; render(); }
+function chooseAnswer(i){ if(answer!==null) return; answer=i; if(i===QUIZ[quizI][2]) score[0]++; score[1]++; render(); }
+function nextQuestion(){ quizI=(quizI+1)%QUIZ.length; answer=null; render(); }
+function retryQuestion(){ answer=null; render(); }
+function stats(){
+  const s=SPORTS[sportI], e=s.events[eventI];
+  const rel=history.filter(x=>x.sport===s.id && x.event===e.id);
+  const successes=rel.filter(x=>x.success).length;
+  const p=e.set.length/6, expected=rel.length*p, sd=Math.sqrt(rel.length*p*(1-p));
+  const z=sd ? (successes-expected)/sd : 0;
+  const counts=Object.fromEntries(U.map(n=>[n, rel.filter(x=>x.roll===n).length]));
+  return {n:rel.length, successes, expected, z, counts};
+}
+function renderPlay(){
+  const s=SPORTS[sportI], e=s.events[eventI], st=stats();
+  document.getElementById('play').innerHTML = `
+    <section class="card sportCard ${s.cls}">
+      <div class="row sportHead"><div class="sportTitle"><span class="sportEmoji">${s.icon}</span><div><div class="sportName">${s.title}</div><div class="sportSub">Ω = ${setText(U)}</div></div></div><button class="secondary" onclick="changeSport()">Changer</button></div>
+      <p class="why compact">${s.why}</p>
+      <div class="eventMini"><b>${e.symbol}</b> = « ${e.name} » · P = ${frac(e.set.length)}</div>
+      <div class="playGrid">
+        <div class="die">${die || '?'}</div>
+        <div>
+          <button class="rollBtn" onclick="roll()">🎲 Lancer le dé</button>
+          <button style="width:100%;margin-top:7px" onclick="reset()">↻ Reset</button>
+        </div>
+      </div>
+      ${die?`<div class="resultBanner ${e.set.includes(die)?'inEvent':'outEvent'}"><span class="resultTitle">Issue ${die}</span>${s.outcomes[die-1]} · ${e.set.includes(die)?'dans l’événement A':'hors de l’événement A'}</div>`:''}
+    </section>
+    <section class="card"><h2>Univers et événement</h2>
+      <div class="eventSummary event${e.symbol}"><b>${e.symbol} = « ${e.name} »</b><p>${e.type} · ${setText(e.set)}</p><p>P(${e.symbol}) = ${frac(e.set.length)}</p></div>
+      ${tiles(e.set, die)}<div class="legend"><span><i class="dot green"></i>dans A</span><span><i class="dot red"></i>contraire</span><span><i class="dot blue"></i>issue tirée</span></div>
+      <div class="eventChoices">${s.events.map((ev,i)=>`<button class="eventBtn event${ev.symbol} ${ev.id===e.id?'active':''}" onclick="chooseEvent(${i})"><b>${ev.symbol}</b> · ${ev.name}<br><small>${ev.type} · ${setText(ev.set)}</small></button>`).join('')}</div></section>
+    <section class="card"><h2>Diagnostic</h2><div class="grid3"><div class="stat"><b>${st.n}</b><span>essais</span></div><div class="stat"><b>${st.successes}</b><span>dans A</span></div><div class="stat"><b>${pct(st.successes,st.n)}</b><span>fréquence</span></div></div>
+      <div class="box"><p>Exact : ${st.successes}/${st.n || 0} = ${pct(st.successes,st.n,1)}</p><p>Théorique : ${e.set.length}/6 = ${pct(e.set.length,6,1)}</p><p>Attendu : ${st.expected.toFixed(1)} réussites</p><p>Écart z = ${st.z.toFixed(2)} : ${zLabel(st.z)}</p><div class="dist">${U.map(n=>`<div><b>${n}</b><br>${st.counts[n]}×</div>`).join('')}</div></div></section>`;
+}
+function renderVisual(){
+  const v=VISUAL[visualI];
+  document.getElementById('visual').innerHTML = `<section class="card"><h2>Visualiseur de l’univers</h2><div class="tabs" style="grid-template-columns:1fr 1fr">${VISUAL.map((ev,i)=>`<button class="${i===visualI?'active':''}" onclick="chooseVisual(${i})">${ev.name}</button>`).join('')}</div><div class="box"><b>${v.name}</b><p>Issues : ${setText(v.set)}</p><p>P = ${frac(v.set.length)}</p><p>Contraire : ${setText(comp(v.set))}</p><p class="tiny">${v.note}</p></div>${tiles(v.set)}<div class="methodBox"><b>Méthode Brevet</b><div class="methodSteps"><span>1. Écrire l’univers Ω.</span><span>2. Définir l’événement.</span><span>3. Compter les issues favorables.</span><span>4. Calculer la probabilité.</span><span>5. Conclure avec une phrase.</span></div></div></section>`;
+}
+function renderQuiz(){
+  const q=QUIZ[quizI];
+  document.getElementById('quiz').innerHTML = `<section class="card"><div class="row"><h2>Quiz</h2><span class="badge">${score[0]}/${score[1]}</span></div><p class="box"><b>${q[0]}</b></p>${q[1].map((ch,i)=>`<button class="quizChoice ${answer===i?(i===q[2]?'right':'wrong'):''}" onclick="chooseAnswer(${i})">${ch}</button>`).join('')}${answer!==null?`<p class="box">${answer===q[2]?'Exact. ':'Pas exactement. '}${q[3]}</p>`:''}<div class="actions" style="margin-top:12px"><button class="primary" onclick="nextQuestion()">Nouvelle question</button><button onclick="retryQuestion()">Réessayer</button></div></section>`;
+}
+function render(){
+  document.getElementById('play').classList.toggle('hide', tab!=='play');
+  document.getElementById('visual').classList.toggle('hide', tab!=='visual');
+  document.getElementById('quiz').classList.toggle('hide', tab!=='quiz');
+  document.getElementById('tabPlay').classList.toggle('active', tab==='play');
+  document.getElementById('tabVisual').classList.toggle('active', tab==='visual');
+  document.getElementById('tabQuiz').classList.toggle('active', tab==='quiz');
+  renderPlay(); renderVisual(); renderQuiz();
+}
+render();
+</script>
+</body>
+</html>
